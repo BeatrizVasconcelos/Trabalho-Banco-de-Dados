@@ -1,45 +1,69 @@
-# from database import Database
+from database import Database
+from menus import menu_inicial
 
 
+# linha de execução do programa
 def main():
-    pass
+    # conexão com banco de dados
+    db = Database()
+    # executa menu inicial
+    while(True):
+        opcao = menu_inicial()
+        if(opcao == 1):
+            usuario = login(db)
+            print(usuario)
+        elif(opcao == 2):
+            cadastro(db)
+        else:
+            print('Programa encerrado')
+            break
 
 
+# função que realiza login
 def login(db):
-    success = False
-    while(not success):
+    while(True):
+        # lê email do usuário
         print('Digite seu e-mail:')
         email = input()
 
-        q = 'SELECT * FROM usuario WHERE email={};'.format(email)
-        tuplas = db.select(q)
+        # executa query para buscar email digitado
+        q = "SELECT * FROM usuario WHERE email='{}';".format(email)
+        tuplas = db.select(q)  # lista de tuplas
 
+        # caso o email não esteja cadastrado, retorna ao inicio
         if(len(tuplas) < 1):
             print('Email não cadastrado.')
             continue
 
+        # lê a senha do usuário
         print('Digite sua senha:')
         senha = input()
 
+        # checa se a senha foi digitada corretamente
+        # caso sim, retorna uma lista com as funções do usuario
         if(senha == tuplas[0][4]):
             print('Logado com sucesso.')
-            return tuplas
+            return tuplas[0]
+        # caso não, retorna ao começo
         else:
             print('Senha incorreta.')
             continue
 
 
+# função que realiza cadastro de usuários
 def cadastro(db):
+    # lê nome e sobrenome do usuário
     print('Digite seu nome:')
     nome = input()
 
     print('Digite seu sobrenome:')
     sobrenome = input()
 
+    # lê o email do usuário até que ele digite um email não cadastrado
     while(True):
         print('Digite seu e-mail:')
         email = input()
-        q = 'SELECT email FROM usuario WHERE email={};'.format(email)
+        q = "SELECT email FROM usuario WHERE email='{}';".format(email)
         tuplas = db.select(q)
 
         if(len(tuplas) == 0):
@@ -47,6 +71,7 @@ def cadastro(db):
         else:
             print('Email já cadastrado.')
 
+    # lê a senha até que o usuario digite a mesma senha duas vezes
     while(True):
         print('Digite uma senha:')
         senha = input()
@@ -59,6 +84,7 @@ def cadastro(db):
         else:
             print('Senhas não correspondem.')
 
+    # lê o tipo de autor até que o usuário selecione uma opção válida
     while(True):
         print('Digite qual sua qualificação na cozinha! :)')
         print('1 - Amador')
@@ -77,9 +103,10 @@ def cadastro(db):
         else:
             print('Digite uma opção válida.')
 
-    q = "INSERT INTO Autor"
-    " (nome, sobrenome, email, senha, permissao, tipo_autor)"
-    " VALUES ({}, {}, {}, {}, Autor, {});"
+    # insere um novo usuario
+    q = "INSERT INTO Autor" \
+        " (nome, sobrenome, email, senha, permissao, tipo_autor)" \
+        " VALUES ('{}', '{}', '{}', '{}', 'Autor', '{}');"
     q = q.format(nome, sobrenome, email, senha, tipo)
 
     db.execute_query(q)
