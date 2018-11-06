@@ -1,5 +1,6 @@
-Trabalho de Banco de Dados 2018.1 - Ciência da Computação
-------------  UNIVERSIDADE ESTADUAL DO CEARÁ ------------
+## Trabalho de Banco de Dados 2018.1 - Ciência da Computação
+
+------------  **UNIVERSIDADE ESTADUAL DO CEARÁ** ------------
 
 Equipe:
 - Antônio Victor Figueiredo Porto
