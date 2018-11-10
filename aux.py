@@ -1,3 +1,7 @@
+from getpass import getpass
+from cripto import crip
+
+
 # função que realiza login
 def login(db):
     while(True):
@@ -15,8 +19,8 @@ def login(db):
             continue
 
         # lê a senha do usuário
-        print('Digite sua senha:')
-        senha = input()
+        senha = getpass('Digite sua senha:\n')
+        senha = crip(senha)
 
         # checa se a senha foi digitada corretamente
         # caso sim, retorna uma lista com as funções do usuario
@@ -52,13 +56,11 @@ def cadastro(db):
 
     # lê a senha até que o usuario digite a mesma senha duas vezes
     while(True):
-        print('Digite uma senha:')
-        senha = input()
-
-        print('Digite novamente:')
-        senha2 = input()
+        senha = getpass('Digite uma senha:\n')
+        senha2 = getpass('Digite novamente:\n')
 
         if(senha == senha2):
+            senha = crip(senha)
             break
         else:
             print('Senhas não correspondem.')
