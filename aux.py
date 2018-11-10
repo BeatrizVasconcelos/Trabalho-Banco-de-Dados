@@ -110,5 +110,72 @@ def cadastro(db):
     return tuplas[0]
 
 
-def get_receitas():
-    pass
+# busca as receitas
+def get_receitas(db, *argv):
+    # query basica para buscar receitas
+    q = "SELECT * FROM Receita;"
+    # caso seja passado um argumento adicional,
+    # adiciona na query
+    if(len(argv) > 0):
+        q += argv[0]
+
+    # adicionada condição para ordenar por avaliacao_media
+    # do maior para o menor
+    q += " ORDER BY avaliacao_media DESC"
+
+    return db.select(q)
+
+
+# função para inserir uma receita
+def insere_receita(db, id_autor):
+    # lê o nome da receita
+    print('Digite o nome da receita:')
+    nome = input()
+
+    # lê os ingredientes
+    print('Digite os ingredientes:')
+    ingredientes = []
+
+    while(True):
+        # lê o nome do ingrediente
+        print('Qual ingrediente você deseja adicionar?')
+        ingrediente = input()
+        # busca pelo ingrediente
+        q = "SELECT * FROM ingrediente WHERE nome='{}';".format(ingrediente)
+        tuplas = db.select(q)
+        # caso encontre o ingrediente
+        if(len(tuplas) > 0):
+            # adiciona o id do ingrediente na lista
+            ingredientes.append(tuplas[0][0])
+        # caso não encontre o ingrediente
+        else:
+            # insere o ingrediente na tabela
+            q = "INSERT INTO ingrediente (nome)" \
+                " VALUES ('{}');".format(ingrediente)
+            db.execute_query(q)
+
+            # busca pelo ingrediente inserido
+            q = "SELECT * FROM ingrediente" \
+                " WHERE nome='{}';".format(ingrediente)
+            tuplas = db.select(q)
+            # adiciona o id do ingrediente na lista
+            ingredientes.append(tuplas[0][0])
+
+        # lê do usuario se ele deseja inserir ou não outro ingrediente
+        print('Deseja adicionar outro ingrediente?')
+        print('(1) - Sim')
+        print('(2) - Não')
+        while(True):
+            try:
+                resposta = int(input())
+            except ValueError:
+                resposta = -1
+            finally:
+                if(resposta in (1, 2)):
+                    break
+                print('Resposta inválida')
+
+    q1 = "INSERT INTO receita (nome, id_autor)" \
+        " VALUES ('{}', {});".format(nome, id_autor)
+
+    db.execute_query(q1)
