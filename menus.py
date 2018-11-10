@@ -13,5 +13,36 @@ def menu_inicial():
         finally:
             if(resposta in (1, 2, 3)):
                 return resposta
-            else:
-                print('Digite um valor válido')
+            print('Digite um valor válido')
+
+
+def menu_principal(tipo_usuario):
+    # usuario é autor
+    if(tipo_usuario == 1):
+        print('Selecione uma opção:')
+        print('(1) Visualizar todas as receitas')
+        print('(2) Enviar receita')
+        print('(3) Minhas receitas')
+        print('(4) Alterar Cadastro')
+        print('(5) Sair')
+        opcoes = range(5)
+    # usuario é ademir
+    elif(tipo_usuario == 0):
+        print('Selecione uma opção:')
+        print('(1) Visualizar todas as receitas')
+        print('(2) Alterar Cadastro')
+        print('(3) Sair')
+        opcoes = range(3)
+    # usuario não existe
+    else:
+        return None
+
+    while(True):
+        try:
+            resposta = int(input())
+        except ValueError:
+            resposta = -1
+        finally:
+            if((resposta - 1) in opcoes):
+                return resposta
+            print('Digite uma opção válida')

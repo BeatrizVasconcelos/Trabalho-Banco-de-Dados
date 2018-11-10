@@ -18,15 +18,24 @@ def login(db):
             print('Email não cadastrado.')
             continue
 
+        # caso o usuario seja um autor, busca pela tupla correspondente
+        if(tuplas[0][5] == 'Autor'):
+            # executa query para buscar email digitado
+            q = "SELECT * FROM autor WHERE email='{}';".format(email)
+            tuplas = db.select(q)  # lista de tuplas
+
+        # usuario
+        usuario = tuplas[0]
+
         # lê a senha do usuário
         senha = getpass('Digite sua senha:\n')
         senha = crip(senha)
 
         # checa se a senha foi digitada corretamente
         # caso sim, retorna uma lista com as funções do usuario
-        if(senha == tuplas[0][4]):
+        if(senha == usuario[4]):
             print('Logado com sucesso.')
-            return tuplas[0]
+            return usuario
         # caso não, retorna ao começo
         else:
             print('Senha incorreta.')
@@ -99,3 +108,7 @@ def cadastro(db):
 
     # retorna o usuario cadastrado
     return tuplas[0]
+
+
+def get_receitas():
+    pass
