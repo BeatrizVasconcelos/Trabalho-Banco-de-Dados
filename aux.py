@@ -338,10 +338,105 @@ def editar_receita(db, tbs, opc, rec):
                     novo = input()
                     q = q1 + "{} SET passo='{}' WHERE id_receita={}" \
                         "AND num_passo={};".format(tbs[0], novo, rec, passo[1])
+                    db.execute_query(q)
+                    return True
     # alterar ingredientes
     elif(len(tbs) == 3):
-        pass
+        # add ingrediente
+        if(opc == 1):
+            meds = ('kg', 'g', 'colher de chá', 'colher de sopa', 'l',
+                    'ml', 'unidade')
+            # lê o nome do ingrediente
+            print('Qual ingrediente você deseja adicionar?')
+            novo = input()
+            # busca pelo ingrediente
+            q = "SELECT * FROM utilizado_em WHERE nome='{}';".format(novo)
+            ingredientes = db.select(q)
+            # caso encontre o ingrediente
+            if(len(ingredientes) > 0):
+                i = ingredientes[0][0]
+            # caso não encontre
+            else:
+                # insere o ingrediente
+                temp = q2 + "{} (nome) VALUES ('{}')".format(tbs[2], novo)
+                db.execute_query(temp)
+                # busca pelo ingrediente inserido
+                i = (db.select(q))[0][0]
+
+            # lê a quantidade de cada ingrediente
+            print('Digite a quantidade:')
+            while(True):
+                try:
+                    qtd = float(input())
+                except ValueError:
+                    qtd = None
+                finally:
+                    if(qtd):
+                        break
+                    print('Valor inválido')
+
+            # lê a medida de cada ingrediente
+            print('Digite a unidade de medida:')
+            print(meds)
+            while(True):
+                try:
+                    med = input()
+                except ValueError:
+                    med = None
+                finally:
+                    if(med in meds):
+                        break
+                    print('Valor inválido')
+            # query para inserir em utilizado_em
+            q = q2 + " (id_receita, id_ingrediente, quantidade, medida) " \
+                "VALUES ({}, {}, {}, '{}');"
+            q = q.format(rec, i, qtd, med)
+        # remover ingrediente
+        elif(opc == 2):
+            print('Qual ingrediente você deseja remover?')
+            while(True):
+                ing = input()
+                # busca pelo ingrediente
+                q = "SELECT id_ingrediente FROM ingrediente INNER JOIN " \
+                    "utilizado_em ON id_ingrediente=id WHERE nome='{} " \
+                    "AND id_receita={}';".format(ing, rec)
+                ingredientes = db.select(q)
+                # caso encontre o ingrediente
+                if(len(ingredientes) > 0):
+                    i = ingredientes[0][0]
+                    break
+                else:
+                    print('Ingrediente não utilizado')
+            q = q3 + "{} WHERE id_receita={} AND id_ingrediente={};"
+            q = q.format(tbs[1], rec, i)
+        # alterar medida
+        else:
+            q = "SELECT nome, quantidade, medida, id FROM ingrediente " \
+                "INNER JOIN utilizado_em ON id=id_ingrediente WHERE " \
+                "id_receita={} ORDER BY nome;".format(rec)
+            utilizados = db.select(q)
+            for ing in utilizados:
+                print('{} - {} {}'.format(ing[0], ing[1], ing[2]))
+                print('Deseja alterar a medida desse ingrediente?')
+                resp = sim_ou_nao()
+                # caso sim, lê a nova quantidade
+                if(resp == 1):
+                    print('Digite um novo valor:')
+                    while(True):
+                        try:
+                            qtd = float(input())
+                        except ValueError:
+                            qtd = None
+                        finally:
+                            if(qtd):
+                                break
+                            print('Valor inválido')
+                    # query para alterar quantidade
+                    q = q1 + "{} SET quantidade={} WHERE id_receita={} AND " \
+                        "id_ingrediente={};".format(tbs[1], qtd, rec, ing[3])
+                    db.execute_query(q)
+                    return True
     else:
         return None
-    print(q)
-    return q1, q2, q3
+    db.execute_query(q)
+    return True
