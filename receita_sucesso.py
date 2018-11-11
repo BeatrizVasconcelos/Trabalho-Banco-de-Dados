@@ -60,7 +60,7 @@ def main():
         # usuario é ademir
         else:
             # exibe o menu de ademir
-            # resoista do usuario
+            # resposta do usuario
             opcao = menu_principal(0)
             # caso o usuario escolha a opcao 1
             # exibe a lista total de receitas
@@ -82,10 +82,12 @@ def get_nome(usuario):
 
 def imprime_receitas(db, *argv):
     # retorna a lista de receitas
-    if(len(argv > 0)):
+    if(len(argv) > 0):
         receitas = get_receitas(db, argv[0])
+        print('\nMinhas receitas:')
     else:
         receitas = get_receitas(db)
+        print('\nLista de receitas:')
     # caso a lista esteja vazia, imprime uma mensagem informando
     if(len(receitas) == 0):
         print('Nenhuma receita encontrada')
@@ -93,7 +95,38 @@ def imprime_receitas(db, *argv):
     else:
         # imprime as receitas
         for receita in receitas:
-            print(receita)
+            # busca o autor
+            q = "SELECT nome, sobrenome, tipo_autor FROM autor WHERE id={}"
+            q = q.format(receita[3])
+            autor = (db.select(q))[0]
+
+            # busca os ingredientes
+            q = "SELECT nome, quantidade, medida FROM ingrediente INNER JOIN" \
+                " utilizado_em ON id=id_ingrediente WHERE id_receita={}" \
+                " ORDER BY nome;".format(receita[0])
+            ingredientes = db.select(q)
+
+            # busca o modo de preparo
+            q = "SELECT num_passo, passo FROM preparo WHERE id_receita={}" \
+                " ORDER BY num_passo;".format(receita[0])
+            passos = db.select(q)
+
+            # imprime informações da receita
+            print('=======================')
+            print('ID: {}'.format(receita[0]))
+            print('Nome: {}'.format(receita[1]))
+            print('Autor: {}'.format(autor[0] + ' ' + autor[1]))
+            print('Nível do Autor: {}'.format(autor[2]))
+            print('Avaliação Média: {}'.format(receita[2]))
+            print('---')
+            print('Ingredientes:')
+            for ing in ingredientes:
+                print('{} - {} {}'.format(ing[0], ing[1], ing[2]))
+            print('\nModo de Preparo:')
+            for n, passo in passos:
+                print('{} - {}'.format(n, passo))
+            print('=======================')
+        print()
 
 
 if(__name__ == '__main__'):

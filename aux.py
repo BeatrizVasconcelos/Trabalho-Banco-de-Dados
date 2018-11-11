@@ -94,7 +94,7 @@ def cadastro(db):
             print('Digite uma opção válida.')
 
     # query que insere um novo usuario
-    q = "INSERT INTO Autor" \
+    q = "INSERT INTO autor" \
         " (nome, sobrenome, email, senha, permissao, tipo_autor)" \
         " VALUES ('{}', '{}', '{}', '{}', 'Autor', '{}');"
     q = q.format(nome, sobrenome, email, senha, tipo)
@@ -103,7 +103,7 @@ def cadastro(db):
     db.execute_query(q)
 
     # query para buscar o usuario inserido
-    q = "SELECT * FROM usuario WHERE email='{}';".format(email)
+    q = "SELECT * FROM autor WHERE email='{}';".format(email)
     tuplas = db.select(q)
 
     # retorna o usuario cadastrado
@@ -113,7 +113,7 @@ def cadastro(db):
 # busca as receitas
 def get_receitas(db, *argv):
     # query basica para buscar receitas
-    q = "SELECT * FROM Receita;"
+    q = "SELECT * FROM Receita"
     # caso seja passado um argumento adicional,
     # adiciona na query
     if(len(argv) > 0):
@@ -121,13 +121,14 @@ def get_receitas(db, *argv):
 
     # adicionada condição para ordenar por avaliacao_media
     # do maior para o menor
-    q += " ORDER BY avaliacao_media DESC"
+    q += " ORDER BY avaliacao_media DESC;"
 
     return db.select(q)
 
 
 # função para inserir uma receita
 def insere_receita(db, id_autor):
+    meds = ('kg', 'g', 'colher de chá', 'colher de sopa', 'l', 'ml', 'unidade')
     # lê o nome da receita
     print('Digite o nome da receita:')
     nome = input()
@@ -135,6 +136,7 @@ def insere_receita(db, id_autor):
     # lê os ingredientes
     print('Digite os ingredientes:')
     ingredientes = []
+    qtdes = []
 
     while(True):
         # lê o nome do ingrediente
@@ -161,21 +163,92 @@ def insere_receita(db, id_autor):
             # adiciona o id do ingrediente na lista
             ingredientes.append(tuplas[0][0])
 
-        # lê do usuario se ele deseja inserir ou não outro ingrediente
-        print('Deseja adicionar outro ingrediente?')
-        print('(1) - Sim')
-        print('(2) - Não')
+        # lê a quantidade de cada ingrediente
+        print('Digite a quantidade:')
         while(True):
             try:
-                resposta = int(input())
+                resp1 = float(input())
             except ValueError:
-                resposta = -1
+                resp1 = None
             finally:
-                if(resposta in (1, 2)):
+                if(resp1):
                     break
-                print('Resposta inválida')
+                print('Valor inválido')
 
+        # lê a medida de cada ingrediente
+        print('Digite a unidade de medida:')
+        print(meds)
+        while(True):
+            try:
+                resp2 = input()
+            except ValueError:
+                resp2 = None
+            finally:
+                if(resp2 in meds):
+                    break
+                print('Valor inválido')
+
+        # adiciona na lista de quantidades
+        qtdes.append((resp1, resp2))
+
+        # lê do usuario se ele deseja inserir ou não outro ingrediente
+        print('Deseja adicionar outro ingrediente?')
+        resposta = sim_ou_nao()
+
+        # sai do while caso a resposta seja 2
+        if(resposta == 2):
+            break
+
+    # query para inserir na tabela receita
     q1 = "INSERT INTO receita (nome, id_autor)" \
         " VALUES ('{}', {});".format(nome, id_autor)
-
+    # insere na tabela receita
     db.execute_query(q1)
+
+    # recupera o id da receita inserida
+    q = "SELECT id FROM receita WHERE id_autor='{}' ORDER BY id DESC;"
+    q = q.format(id_autor)
+    id_rec = (db.select(q))[0][0]
+    # insere na tabela Utilizado_em
+    for i in range(len(ingredientes)):
+        q2 = "INSERT INTO utilizado_em (id_receita, id_ingrediente, " \
+            "quantidade, medida) VALUES ({}, {}, {}, '{}');"
+        q2 = q2.format(id_rec, ingredientes[i], qtdes[i][0], qtdes[i][1])
+        db.execute_query(q2)
+
+    # modo de preparo
+    print('Digite o modo de preparo:')
+    num_passo = 0
+    while(True):
+        num_passo += 1
+        print('Digite o {}º passo:'.format(num_passo))
+        passo = input()
+        q3 = "INSERT INTO preparo VALUES ({}, {}, '{}');"
+        q3 = q3.format(id_rec, num_passo, passo)
+        db.execute_query(q3)
+
+        # continua ou não
+        print('Deseja adicionar mais um passo?')
+        resposta = sim_ou_nao()
+
+        # sai do while
+        if(resposta == 2):
+            break
+
+    # print fim
+    print('Receita cadastrada!')
+
+
+# lê do usuario uma resposta entre sim e não
+def sim_ou_nao():
+    print('(1) - Sim')
+    print('(2) - Não')
+    while(True):
+        try:
+            resposta = int(input())
+        except ValueError:
+            resposta = -1
+        finally:
+            if(resposta in (1, 2)):
+                return resposta
+            print('Resposta inválida')
