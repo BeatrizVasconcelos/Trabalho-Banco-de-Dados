@@ -1,5 +1,5 @@
 from database import Database
-from menus import (menu_inicial, menu_principal)
+from menus import (menu_inicial, menu_principal, menu_busca)
 from aux import (login, cadastro, get_receitas, insere_receita, sim_ou_nao)
 
 
@@ -53,8 +53,37 @@ def main():
             # exibe a lista das receitas dele
             elif(opcao == 3):
                 cond = " WHERE id_autor={}".format(usuario[0])
-                imprime_receitas(db, cond)
+                imprime_receitas(db, usuario[0], cond)
+            # caso o usuário escolha a opção 4
+            # exibe o menu de busca e busca
+            elif(opcao == 4):
+                print('Pelo que deseja buscar?')
+                resposta = menu_busca()
+                # busca por ingredientes
+                if(resposta == 1):
+                    # lê o ingrediente que será buscado
+                    print('Digite o nome do ingrediente')
+                    ing = input()
+                    # busca pelo ingrediente e imprime
+                    cond = " INNER JOIN utilizado_em ON id_receita=id WHERE" \
+                        " id_ingrediente IN (SELECT id FROM ingrediente" \
+                        " WHERE nome='{}')".format(ing)
+                    imprime_receitas(db, usuario[0], cond)
+                # busca por autor
+                else:
+                    # lê o autor que será buscado
+                    print('Digite o nome ou sobrenome do autor: (não ambos)')
+                    aut = input()
+                    # busca pelo autor e imprime
+                    cond = " WHERE id_autor IN (SELECT id FROM autor WHERE " \
+                        "nome LIKE '%{}%' or sobrenome LIKE '%{}%')"
+                    cond = cond.format(aut, aut)
+                    imprime_receitas(db, usuario[0], cond)
+            # caso o usuario escolha a opcao 5
+            # altera seus dados
             elif(opcao == 5):
+                pass
+            elif(opcao == 6):
                 print('Volte sempre, {}'.format(nome_completo))
                 break
         # usuario é ademir
@@ -84,13 +113,13 @@ def imprime_receitas(db, usuario, *argv):
     # retorna a lista de receitas
     if(len(argv) > 0):
         receitas = get_receitas(db, argv[0])
-        print('\nMinhas receitas:')
     else:
         receitas = get_receitas(db)
-        print('\nLista de receitas:')
+
+    print('\nLista de receitas:')
     # caso a lista esteja vazia, imprime uma mensagem informando
     if(len(receitas) == 0):
-        print('Nenhuma receita encontrada')
+        print('Nenhuma receita encontrada\n')
     # caso haja elementos, imprime todos
     else:
         # imprime as receitas
@@ -118,7 +147,7 @@ def imprime_receitas(db, usuario, *argv):
 
             # checa se o usuario ja avaliou
             q = "SELECT COUNT(id) FROM avaliacao WHERE id_autor={}" \
-                "AND id_receita={}".format(usuario, receita[0])
+                " AND id_receita={}".format(usuario, receita[0])
             review_user = (db.select(q))[0][0]
 
             # imprime informações da receita

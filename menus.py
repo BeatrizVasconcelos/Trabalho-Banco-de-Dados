@@ -23,9 +23,10 @@ def menu_principal(tipo_usuario):
         print('(1) Visualizar todas as receitas')
         print('(2) Enviar receita')
         print('(3) Minhas receitas')
-        print('(4) Alterar Cadastro')
-        print('(5) Sair')
-        opcoes = range(5)
+        print('(4) Buscar receita')
+        print('(5) Alterar Cadastro')
+        print('(6) Sair')
+        opcoes = range(6)
     # usuario é ademir
     elif(tipo_usuario == 0):
         print('Selecione uma opção:')
@@ -44,5 +45,20 @@ def menu_principal(tipo_usuario):
             resposta = -1
         finally:
             if((resposta - 1) in opcoes):
+                return resposta
+            print('Digite uma opção válida')
+
+
+def menu_busca():
+    print('Selecione uma opção:')
+    print('(1) Ingrediente')
+    print('(2) Autor')
+    while(True):
+        try:
+            resposta = int(input())
+        except Exception as e:
+            resposta = -1
+        finally:
+            if(resposta in (1, 2)):
                 return resposta
             print('Digite uma opção válida')
