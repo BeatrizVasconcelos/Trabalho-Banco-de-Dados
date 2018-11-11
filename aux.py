@@ -212,7 +212,7 @@ def insere_receita(db, id_autor):
 
     # query para inserir na tabela receita
     q1 = "INSERT INTO receita (nome, id_autor, categoria)" \
-        " VALUES ('{}', {});".format(nome, id_autor, categoria)
+        " VALUES ('{}', {}, '{}');".format(nome, id_autor, categoria)
     # insere na tabela receita
     db.execute_query(q1)
 
@@ -270,3 +270,78 @@ def alterar_cadastro(db, user, cond):
     # altera o usuario
     q = "UPDATE {} WHERE id={};".format(cond, user)
     db.execute_query(q)
+
+
+# altera receitas
+def editar_receita(db, tbs, opc, rec):
+    q1 = "UPDATE "
+    q2 = "INSERT INTO "
+    q3 = "DELETE FROM "
+    # alterar dados da receita
+    if(len(tbs) == 1):
+        q = q1 + "{} SET {} = '{}' WHERE id={};"
+        # alterar nome
+        if(opc == 1):
+            print('Digite o novo nome da receita:')
+            campo = 'nome'
+            novo = input()
+        # alterar categoria
+        else:
+            campo = 'categoria'
+            cats = ('Lanche', 'Acompanhamento',
+                    'Prato Principal', 'Sobremesa', 'Entrada')
+            print('Digite a nova categoria da receita:')
+            print(cats)
+            while(True):
+                try:
+                    novo = input()
+                except ValueError:
+                    novo = ''
+                finally:
+                    if(novo in cats):
+                        break
+                    print('Digite uma opção válida')
+        # possui todas as informações para completar a query
+        q = q.format(tbs[0], campo, novo, rec)
+    # alterar modo de preparo
+    elif(len(tbs) == 2):
+        # adicionar passo
+        if(opc == 1):
+            q = q2 + "{} (id_receita, num_passo, passo) " \
+                "VALUES ({}, {}, '{}');"
+            print('Informe o novo passo:')
+            novo = input()
+            # query para buscar o numero de passos
+            temp = "SELECT COUNT(num_passo) FROM preparo WHERE id_receita={};"
+            temp = temp.format(rec)
+            # numero do novo passo
+            num = (db.select(temp))[0][0] + 1
+            q = q.format(tbs[0], rec, num, novo)
+        # remover o ultimo passo
+        elif(opc == 2):
+            q = q3 + "{} WHERE id_receita={} AND num_passo IN " \
+                "(SELECT MAX(num_passo) FROM {} WHERE id_receita={});"
+            q = q.format(rec, tbs[0], rec)
+        # editar passo
+        else:
+            # recupera a lista de passos da receita
+            temp = "SELECT * FROM preparo WHERE id_receita={}".format(rec)
+            passos = db.select(temp)
+            # percorre a lista de passos
+            for passo in passos:
+                print(passo[2])
+                print('Deseja alterar este passo?')
+                resp = sim_ou_nao()
+                # caso o usuario deseje alterar
+                if(resp == 1):
+                    print('Digite o novo passo:')
+                    novo = input()
+                    q = q1 + "{} SET passo='{}' WHERE id_receita={}" \
+                        "AND num_passo={};".format(tbs[0], novo, rec, passo[1])
+    # alterar ingredientes
+    elif(len(tbs) == 3):
+        pass
+    else:
+        return None
+    print(q)
+    return q1, q2, q3

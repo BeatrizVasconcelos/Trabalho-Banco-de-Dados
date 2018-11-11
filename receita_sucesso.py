@@ -1,13 +1,10 @@
 from getpass import getpass
 from cripto import crip
 from database import Database
-from menus import (menu_inicial, menu_principal, menu_busca, menu_alt_user)
-from aux import (login,
-                 cadastro,
-                 get_receitas,
-                 insere_receita,
-                 sim_ou_nao,
-                 alterar_cadastro)
+from menus import (menu_inicial, menu_principal, menu_busca,
+                   menu_alt_user, menu_alt_rec)
+from aux import (login, cadastro, get_receitas, insere_receita,
+                 sim_ou_nao, alterar_cadastro)
 
 
 # linha de execução do programa
@@ -213,6 +210,19 @@ def cond_alteracao(campo):
     return "usuario SET {}='{}'".format(campo, new)
 
 
+# checa se o usuário é administrador
+def is_ademir(db, user):
+    # lista de usuarios que são ademirs
+    q = "select id from usuario where id not in (select id from autor);"
+    ademirs = db.select(q)
+    # vê se algum dos ademirs é o usuario
+    for adm in ademirs:
+        if(user == adm[0]):
+            return True
+
+    return False
+
+
 def get_nome(usuario):
     return ' '.join((usuario[1], usuario[2]))
 
@@ -233,8 +243,8 @@ def imprime_receitas(db, usuario, *argv):
         # imprime as receitas
         for receita in receitas:
             # busca o autor
-            q = "SELECT nome, sobrenome, tipo_autor FROM autor WHERE id={}"
-            q = q.format(receita[3])
+            q = "SELECT nome, sobrenome, tipo_autor, id" \
+                " FROM autor WHERE id={};".format(receita[3])
             autor = (db.select(q))[0]
 
             # busca os ingredientes
@@ -281,12 +291,26 @@ def imprime_receitas(db, usuario, *argv):
                 print('{} - {}'.format(n, passo))
             print('=======================')
 
-            # pergunta se o usuaŕio deseja avaliar a receita
-            if(review_user == 0):
-                print('Deseja avaliar essa receita?')
-                resp = sim_ou_nao()
-                if(resp == 1):
-                    avaliar_receita(db, usuario, receita[0])
+            # se o usuario for ademir
+            if(is_ademir(db, usuario)):
+                print('Deseja editar esta receita?')
+                resposta = sim_ou_nao()
+                if(resposta == 1):
+                    menu_alt_rec(db, receita[0])
+            # se nao for ademir
+            else:
+                # pergunta se o usuaŕio deseja avaliar a receita
+                if(review_user == 0):
+                    print('Deseja avaliar essa receita?')
+                    resp = sim_ou_nao()
+                    if(resp == 1):
+                        avaliar_receita(db, usuario, receita[0])
+                # testa se o usuario é autor da receita
+                if(autor[3] == usuario):
+                    print('Deseja editar esta receita?')
+                    resposta = sim_ou_nao()
+                    if(resposta == 1):
+                        menu_alt_rec(db, receita[0])
         print()
 
 
