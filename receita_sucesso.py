@@ -1,6 +1,13 @@
+from getpass import getpass
+from cripto import crip
 from database import Database
-from menus import (menu_inicial, menu_principal, menu_busca)
-from aux import (login, cadastro, get_receitas, insere_receita, sim_ou_nao)
+from menus import (menu_inicial, menu_principal, menu_busca, menu_alt_user)
+from aux import (login,
+                 cadastro,
+                 get_receitas,
+                 insere_receita,
+                 sim_ou_nao,
+                 alterar_cadastro)
 
 
 # linha de execução do programa
@@ -82,7 +89,61 @@ def main():
             # caso o usuario escolha a opcao 5
             # altera seus dados
             elif(opcao == 5):
-                pass
+                resposta = menu_alt_user(usuario)
+                # caso ele deseje alterar o nome
+                if(resposta == 1):
+                    cond = cond_alteracao('nome')
+                # caso ele deseje alterar o sobrenome
+                elif(resposta == 2):
+                    cond = cond_alteracao('sobrenome')
+                # caso ele deseje alterar o email
+                elif(resposta == 3):
+                    cond = cond_alteracao('email')
+                # caso ele deseje alterar a senha
+                elif(resposta == 4):
+                    # lê a senha atual, por segurança
+                    while(True):
+                        senha = getpass('Digite sua senha atual:\n')
+                        senha = crip(senha)
+                        if(senha == usuario[4]):
+                            break
+                        else:
+                            print('Senha incorreta')
+
+                    # pede a senho nova duas vezes
+                    while(True):
+                        nova = getpass('Digite uma nova senha:\n')
+                        nova2 = getpass('Digite novamente:\n')
+
+                        if(nova == nova2):
+                            nova = crip(nova)
+                            break
+                        else:
+                            print('Senhas não correspondem.')
+                    cond = "usuario SET senha='{}'".format(nova)
+                # caso ele deseje alterar o tipo de autor
+                else:
+                    print('Digite seu novo nível:')
+                    while(True):
+                        print('1 - Amador')
+                        print('2 - Estudante')
+                        print('3 - Profissional')
+                        tipo = int(input())
+
+                        if(tipo in (1, 2, 3)):
+                            if(tipo == 1):
+                                tipo = 'Amador'
+                            elif(tipo == 2):
+                                tipo = 'Estudante'
+                            else:
+                                tipo = 'Profissional'
+                            break
+                        else:
+                            print('Digite uma opção válida.')
+                    cond = "autor SET tipo_autor='{}'".format(tipo)
+
+                alterar_cadastro(db, usuario[0], cond)
+                print('Feito! Reinicie para aplicar alterações.')
             elif(opcao == 6):
                 print('Volte sempre, {}'.format(nome_completo))
                 break
@@ -99,10 +160,51 @@ def main():
             # caso o usuario escolha a opcao 2
             # altera seus dados
             elif(opcao == 2):
-                pass
+                resposta = menu_alt_user(usuario)
+                # caso ele deseje alterar o nome
+                if(resposta == 1):
+                    cond = cond_alteracao('nome')
+                # caso ele deseje alterar o sobrenome
+                elif(resposta == 2):
+                    cond = cond_alteracao('sobrenome')
+                # caso ele deseje alterar o email
+                elif(resposta == 3):
+                    cond = cond_alteracao('email')
+                # caso ele deseje alterar a senha
+                else:
+                    # lê a senha atual, por segurança
+                    while(True):
+                        senha = getpass('Digite sua senha atual:\n')
+                        senha = crip(senha)
+                        if(senha == usuario[4]):
+                            break
+                        else:
+                            print('Senha incorreta')
+
+                    # pede a senho nova duas vezes
+                    while(True):
+                        nova = getpass('Digite uma nova senha:\n')
+                        nova2 = getpass('Digite novamente:\n')
+
+                        if(nova == nova2):
+                            nova = crip(nova)
+                            break
+                        else:
+                            print('Senhas não correspondem.')
+                    cond = "usuario SET senha='{}'".format(nova)
+                # executa a query
+                alterar_cadastro(db, usuario[0], cond)
+                print('Feito! Reinicie para aplicar alterações.')
             elif(opcao == 3):
                 print('Volte sempre, {}'.format(nome_completo))
                 break
+
+
+def cond_alteracao(campo):
+    # lê o novo email
+    print('Digite o novo {}:'.format(campo))
+    new = input()
+    return "usuario SET {}='{}'".format(campo, new)
 
 
 def get_nome(usuario):

@@ -252,3 +252,10 @@ def sim_ou_nao():
             if(resposta in (1, 2)):
                 return resposta
             print('Resposta inválida')
+
+
+# altera os dados do usuario
+def alterar_cadastro(db, user, cond):
+    # altera o usuario
+    q = "UPDATE {} WHERE id={};".format(cond, user)
+    db.execute_query(q)

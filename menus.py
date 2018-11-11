@@ -62,3 +62,30 @@ def menu_busca():
             if(resposta in (1, 2)):
                 return resposta
             print('Digite uma opção válida')
+
+
+def menu_alt_user(user):
+    # exibe dados do usuário
+    print('Selecione uma opção:')
+    print("Seus dados atuais:")
+    print("(1) - Nome: {}".format(user[1]))
+    print("(2) - Sobrenome: {}".format(user[2]))
+    print("(3) - Email: {}".format(user[3]))
+    print("(4) - Senha")
+    # caso ele seja autor, exibe o tipo
+    if(len(user) > 6):
+        print("(5) - Tipo de autor: {}".format(user[6]))
+        opcoes = (1, 2, 3, 4, 5)
+    else:
+        opcoes = (1, 2, 3, 4)
+
+    # lê a resposta do usuario
+    while(True):
+        try:
+            resposta = int(input())
+        except ValueError:
+            resposta = -1
+        finally:
+            if(resposta in opcoes):
+                return resposta
+            print('Digite uma opção válida')
