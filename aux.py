@@ -129,9 +129,20 @@ def get_receitas(db, *argv):
 # função para inserir uma receita
 def insere_receita(db, id_autor):
     meds = ('kg', 'g', 'colher de chá', 'colher de sopa', 'l', 'ml', 'unidade')
+    cats = ('Lanche', 'Acompanhamento',
+            'Prato Principal', 'Sobremesa', 'Entrada')
     # lê o nome da receita
     print('Digite o nome da receita:')
     nome = input()
+
+    # lê a categoria da receita
+    print('Digite a categoria:')
+    print(cats)
+    while(True):
+        categoria = input()
+        if(categoria in cats):
+            break
+        print('Digite uma categoria válida')
 
     # lê os ingredientes
     print('Digite os ingredientes:')
@@ -200,8 +211,8 @@ def insere_receita(db, id_autor):
             break
 
     # query para inserir na tabela receita
-    q1 = "INSERT INTO receita (nome, id_autor)" \
-        " VALUES ('{}', {});".format(nome, id_autor)
+    q1 = "INSERT INTO receita (nome, id_autor, categoria)" \
+        " VALUES ('{}', {});".format(nome, id_autor, categoria)
     # insere na tabela receita
     db.execute_query(q1)
 

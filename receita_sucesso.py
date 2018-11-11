@@ -77,7 +77,7 @@ def main():
                         " WHERE nome='{}')".format(ing)
                     imprime_receitas(db, usuario[0], cond)
                 # busca por autor
-                else:
+                elif(resposta == 2):
                     # lê o autor que será buscado
                     print('Digite o nome ou sobrenome do autor: (não ambos)')
                     aut = input()
@@ -85,6 +85,12 @@ def main():
                     cond = " WHERE id_autor IN (SELECT id FROM autor WHERE " \
                         "nome LIKE '%{}%' or sobrenome LIKE '%{}%')"
                     cond = cond.format(aut, aut)
+                    imprime_receitas(db, usuario[0], cond)
+                # busca por categoria
+                else:
+                    print('Digite a categoria:')
+                    cat = input()
+                    cond = " WHERE categoria = '{}'".format(cat)
                     imprime_receitas(db, usuario[0], cond)
             # caso o usuario escolha a opcao 5
             # altera seus dados
@@ -254,8 +260,8 @@ def imprime_receitas(db, usuario, *argv):
 
             # imprime informações da receita
             print('=======================')
-            print('ID: {}'.format(receita[0]))
             print('Nome: {}'.format(receita[1]))
+            print('Categoria: {}'.format(receita[4]))
             print('Autor: {}'.format(autor[0] + ' ' + autor[1]))
             print('Nível do Autor: {}'.format(autor[2]))
             print('Avaliação Média: {}'.format(receita[2]))

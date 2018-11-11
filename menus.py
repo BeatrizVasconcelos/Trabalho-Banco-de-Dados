@@ -53,13 +53,14 @@ def menu_busca():
     print('Selecione uma opção:')
     print('(1) Ingrediente')
     print('(2) Autor')
+    print('(3) Categoria')
     while(True):
         try:
             resposta = int(input())
         except Exception as e:
             resposta = -1
         finally:
-            if(resposta in (1, 2)):
+            if(resposta in (1, 2, 3)):
                 return resposta
             print('Digite uma opção válida')
 
